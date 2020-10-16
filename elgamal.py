@@ -21,7 +21,7 @@ def generateLowestAcceptableGenerator(prime):
 		rand = i
 		exp = 1
 		next = rand % prime
-		
+
 		while next != 1:
 			next = (next * rand) % prime
 			exp += 1
@@ -76,7 +76,7 @@ def compressMessage(message):
 
 def elgamal(prime, message, privateKey):
 	q = prime - 1
-	generator = generateLowestAcceptableGenerator(prime)
+	generator = 150 #generateLowestAcceptableGenerator(prime)
 
 	x = privateKey
 	h = fastModularExponentiation(generator, x, prime)
@@ -120,18 +120,20 @@ def decryption(prime, privateKey, encryptedList):
 
 	return mm
 
-
-		
+def test():
+	a = 160631969666744364925373033984184314902761191551381575304972694114513245748158801597490974160311834913273205569877141331903631839810265131279058005190614176041276539196416810550510912963004297518574710368588770559155257809815477981417538915935479333249225695043537255989273835803468813840210305713163308516531
+	print (a.bit_length())
 
 def main():
 
-	stringMessage = "HEI"
+	stringMessage = "HELLO"
 	#compressedMessage = compressMessage(stringMessage)
 
-	prime = 9923
+	prime = 131
 	blocks = constructBlocks(stringMessage, prime)
 
 	print("Plaintext:", stringMessage)
+	print("Prime Number:", prime, "\n")
 	print("Blocks: (", len(blocks), ")")
 	for i in blocks:
 		print(i, end = " ")
@@ -160,6 +162,7 @@ def main():
 
 	decryptedMessage = deconstructBlocks(decryptedList)
 	print("Decrypted Message:", decryptedMessage)
+		
 	
 if __name__ == '__main__':
 	main()
