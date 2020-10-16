@@ -21,7 +21,7 @@ def generateLowestAcceptableGenerator(prime):
 		rand = i
 		exp = 1
 		next = rand % prime
-
+		
 		while next != 1:
 			next = (next * rand) % prime
 			exp += 1
@@ -30,7 +30,6 @@ def generateLowestAcceptableGenerator(prime):
 			return rand
 
 		i += 1
-
 	return -1
 
 def constructBlocks(message, prime):
@@ -38,7 +37,6 @@ def constructBlocks(message, prime):
 		sys.exit("Your Primenumber is less than the minimum (131).")
 
 	retList = []
-
 	i = 0
 	while i < len(message):
 		#print("index: ", i)
@@ -52,15 +50,19 @@ def constructBlocks(message, prime):
 				tempValue = concatenateValue
 				i += 1
 			
-
 		retList.append(tempValue)
-
 		i += 1
-
 	return retList;
 
 def deconstructBlocks(blocks):
-	print("hello")
+	retString = ""
+
+	for i in blocks:
+		for j in range(int(len(str(i))/2)):
+			retString += chr(int(str(i)[j*2:2*(j+1)]))
+
+	return retString
+		
 
 def compressMessage(message):
 	retStr = ""
@@ -123,15 +125,10 @@ def decryption(prime, privateKey, encryptedList):
 
 def main():
 
-	stringMessage = "HELLO"
+	stringMessage = "HEI"
 	#compressedMessage = compressMessage(stringMessage)
 
-
-
-
 	prime = 9923
-	
-
 	blocks = constructBlocks(stringMessage, prime)
 
 	print("Plaintext:", stringMessage)
@@ -160,10 +157,9 @@ def main():
 		decryptedList.append(decrypted)
 		print(decrypted, end = " ")
 	print("\n")
+
+	decryptedMessage = deconstructBlocks(decryptedList)
+	print("Decrypted Message:", decryptedMessage)
 	
-
-
-	
-
 if __name__ == '__main__':
 	main()
