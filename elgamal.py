@@ -1,5 +1,5 @@
 import random
-import sys
+import sys, getopt
 
 def fastModularExponentiation(generator, exponent, mod):
 	x = 1
@@ -7,12 +7,9 @@ def fastModularExponentiation(generator, exponent, mod):
 	binaryString = bin(exponent)
 
 	for i in binaryString[::-1]:
-
 		if i == '1':
 			x = (x * power) % mod
-
 		power = (power * power) % mod;
-
 	return x
 
 def generateLowestAcceptableGenerator(prime):
@@ -50,18 +47,14 @@ def constructBlocks(message, prime):
 	i = 0
 	while i < len(message):
 		tempValue = addPadding(str(ord(message[i])))
-		print(tempValue)
 		for j, k in enumerate(message[(i+1):len(message)], 1):
 			nextChar = addPadding(str(ord(k)))
-			print(nextChar)
 			concatenateValue = tempValue + nextChar
-
 
 			if int(concatenateValue) > prime:
 				break
 			else:
 				tempValue = concatenateValue
-				print(tempValue)
 				i += 1
 			
 		retList.append(tempValue)
@@ -108,24 +101,19 @@ def decryption(prime, privateKey, encryptedList):
 
 	return addPadding(str(decryptedMessage))
 
-def main():
+def main(argv):
 
-	with open('elgamal.py', 'r') as file:
+	inputFile = ""
+	outputFIle = ""
+	printing = False
+
+	with open('main.cpp', 'r') as file:
 		stringMessage = file.read()
 
 	#stringMessage = "Hello okeilksdjfoijoIJOJOIIJsodjfofjoIY*UEYFe123463267439"
-	#compressedMessage = compressMessage(stringMessage)
 
 	prime = 58021664585639791181184025950440248398226136069516938232493687505822471836536824298822733710342250697739996825938232641940670857624514103125986134050997697160127301547995788468137887651823707102007839
 	blocks = constructBlocks(stringMessage, prime)
-
-	print("Plaintext:", stringMessage)
-	print("Prime Number:", prime, "\n")
-	print("Blocks: (", len(blocks), ")")
-	for i in blocks:
-		print(i, end = " ")
-	print("\n")
-
 
 	encryptedList = []
 	privateKeys = []
@@ -134,22 +122,37 @@ def main():
 		privateKeys.append(currentPrivateKey)
 		encryptedList.append(encrypt(prime, i, currentPrivateKey))
 
-	print("Encrypted Blocks:")
-	for i in encryptedList:
-		print(i, end = " ")
-	print("\n")
-
-	print("Decrypted Blocks:")
 	decryptedList = []
 	for i, j in enumerate(encryptedList, 0):
 		decrypted = decryption(prime, privateKeys[i], j)
 		decryptedList.append(decrypted)
-		print(decrypted, end = " ")
-	print("\n")
-
-	decryptedMessage = deconstructBlocks(decryptedList)
-	print("Decrypted Message: \n" + decryptedMessage)
 		
+	decryptedMessage = deconstructBlocks(decryptedList)
+
+	if stringMessage == decryptedMessage:
+		print("Success!")
+	else:
+		print("Failed.")
 	
+	if printing:
+		print("Plaintext:", stringMessage)
+		print("Prime Number:", prime, "\n")
+		print("Blocks: (", len(blocks), ")")
+		for i in blocks:
+			print(i, end = " ")
+		print("\n")
+
+		print("Encrypted Blocks:")
+		for i in encryptedList:
+			print(i, end = " ")
+		print("\n")
+
+		print("Decrypted Blocks:")
+		for i in decryptedList:
+			print(i, end = " ")
+		print("\n")
+
+		print("Decrypted Message: \n" + decryptedMessage)
+
 if __name__ == '__main__':
-	main()
+	main(sys.argv[1:])
