@@ -32,6 +32,16 @@ def generateLowestAcceptableGenerator(prime):
 		i += 1
 	return -1
 
+def addPadding(a):
+	if len(a) % 3 != 0:
+		if len(a) % 3 == 1:
+			return "00" + a
+		else:
+			return "0" + a
+	else:
+		return a
+
+
 def constructBlocks(message, prime):
 	if prime < 131:
 		sys.exit("Your Primenumber is less than the minimum (131).")
@@ -39,15 +49,19 @@ def constructBlocks(message, prime):
 	retList = []
 	i = 0
 	while i < len(message):
-		#print("index: ", i)
-		tempValue = ord(message[i])
+		tempValue = addPadding(str(ord(message[i])))
+		print(tempValue)
 		for j, k in enumerate(message[(i+1):len(message)], 1):
-			concatenateValue = int(str(tempValue) + str(ord(k)))
+			nextChar = addPadding(str(ord(k)))
+			print(nextChar)
+			concatenateValue = tempValue + nextChar
 
-			if concatenateValue > prime:
+
+			if int(concatenateValue) > prime:
 				break
 			else:
 				tempValue = concatenateValue
+				print(tempValue)
 				i += 1
 			
 		retList.append(tempValue)
@@ -58,28 +72,17 @@ def deconstructBlocks(blocks):
 	retString = ""
 
 	for i in blocks:
-		for j in range(int(len(str(i))/2)):
-			retString += chr(int(str(i)[j*2:2*(j+1)]))
+		for j in range(int(len(str(i))/3)):
+			retString += chr(int(str(i)[j*3:3*(j+1)]))
 
 	return retString
-		
 
-def compressMessage(message):
-	retStr = ""
-	for i in message:
-		retStr += str(ord(i) - 22)
-
-	print(retStr)
-	return retStr
-
-
-
-def elgamal(prime, message, privateKey):
+def encrypt(prime, message, privateKey):
 	q = prime - 1
 	generator = 150 #generateLowestAcceptableGenerator(prime)
 
 	x = privateKey
-	h = fastModularExponentiation(generator, x, prime)
+	h = fastModularExponentiation(generator, privateKey, prime)
 
 	y = random.randint(1, q)
 
@@ -87,25 +90,10 @@ def elgamal(prime, message, privateKey):
 
 	c1 = fastModularExponentiation(generator, y, prime)
 
-	c2 = fastModularExponentiation((message * s), 1, prime)
-
-	ss = fastModularExponentiation(c1, x, prime)
-
-	invs = fastModularExponentiation(c1, (q - x), prime)
-
-	mm = fastModularExponentiation((c2 * invs), 1, prime)
-
-	#print("c1: ", c1)
-	#print("c2: ", c2)
-
-	#print("Prime: ", prime)
-	#print("Generator: ", generator)
-	#print("Message: ", message)
-	#print("Decrypted messsage: ", mm)
+	c2 = fastModularExponentiation((int(message) * s), 1, prime)
 
 	retList = [c1, c2]
 
-	#return int(str(c1) + str(c2))
 	return retList
 
 def decryption(prime, privateKey, encryptedList):
@@ -114,22 +102,21 @@ def decryption(prime, privateKey, encryptedList):
 	c2 = encryptedList[1]
 	x = privateKey
 
-	invs = fastModularExponentiation(c1, (q - x), prime)
+	inverse = fastModularExponentiation(c1, (q - x), prime)
 
-	mm = fastModularExponentiation((c2 * invs), 1, prime)
+	decryptedMessage = fastModularExponentiation((c2 * inverse), 1, prime)
 
-	return mm
-
-def test():
-	a = 160631969666744364925373033984184314902761191551381575304972694114513245748158801597490974160311834913273205569877141331903631839810265131279058005190614176041276539196416810550510912963004297518574710368588770559155257809815477981417538915935479333249225695043537255989273835803468813840210305713163308516531
-	print (a.bit_length())
+	return addPadding(str(decryptedMessage))
 
 def main():
 
-	stringMessage = "HELLO"
+	with open('elgamal.py', 'r') as file:
+		stringMessage = file.read()
+
+	#stringMessage = "Hello okeilksdjfoijoIJOJOIIJsodjfofjoIY*UEYFe123463267439"
 	#compressedMessage = compressMessage(stringMessage)
 
-	prime = 131
+	prime = 58021664585639791181184025950440248398226136069516938232493687505822471836536824298822733710342250697739996825938232641940670857624514103125986134050997697160127301547995788468137887651823707102007839
 	blocks = constructBlocks(stringMessage, prime)
 
 	print("Plaintext:", stringMessage)
@@ -145,7 +132,7 @@ def main():
 	for i in blocks:
 		currentPrivateKey = random.randint(1, (prime - 1))
 		privateKeys.append(currentPrivateKey)
-		encryptedList.append(elgamal(prime, i, currentPrivateKey))
+		encryptedList.append(encrypt(prime, i, currentPrivateKey))
 
 	print("Encrypted Blocks:")
 	for i in encryptedList:
@@ -161,7 +148,7 @@ def main():
 	print("\n")
 
 	decryptedMessage = deconstructBlocks(decryptedList)
-	print("Decrypted Message:", decryptedMessage)
+	print("Decrypted Message: \n" + decryptedMessage)
 		
 	
 if __name__ == '__main__':
