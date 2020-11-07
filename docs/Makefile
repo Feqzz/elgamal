@@ -1,7 +1,7 @@
 PROG = main
 CC = pdflatex
 
-all: build #bibtex build build clean
+all: build bibtex build build #clean
 
 build:
 	$(CC) $(PROG).tex
