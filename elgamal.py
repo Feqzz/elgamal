@@ -6,6 +6,7 @@ import sys, getopt
 ###############################
 
 def fastModularExponentiation(generator, exponent, mod):
+    #This function is taken from the course book. 
     x = 1
     power = generator % mod
     binaryString = bin(exponent)
@@ -22,6 +23,7 @@ def fastModularExponentiation(generator, exponent, mod):
 ################
 
 def addPadding(a):
+    # Adds padding to the number. If the number is '3', it will be returned as '003'.
     if len(a) % 3 != 0:
         if len(a) % 3 == 1:
             return "00" + a
@@ -36,9 +38,14 @@ def addPadding(a):
 
 
 def constructBlocks(message, prime):
+    # The limit is implemented so the program can encrypt every ASCII character.
     if prime < 131:
         sys.exit("Your Primenumber is less than the minimum (131).")
-
+        
+    # Initializes an empty list. It loops through the message and coverts the character to 
+    # a ASCII value and adds padding. If concatenates values together until the value is larger
+    # than the prime number. Then it settles for the previous value, and appends it to the list.
+    # After the program have iterated through every value of the message, it returns the list.
     retList = []
     i = 0
     while i < len(message):
@@ -62,6 +69,10 @@ def constructBlocks(message, prime):
 #######################
 
 def deconstructBlocks(blocks):
+    # From the padding, we know that every value is 3 digits long. An empty string is
+    # initialized and the loop iterates through every block, converting the ascii values
+    # back to characters and appends them to the string. 
+    # When the loop is finished, the string is returned.
     retString = ""
     for i in blocks:
         for j in range(int(len(str(i))/3)):
@@ -74,8 +85,11 @@ def deconstructBlocks(blocks):
 #############
 
 def encrypt(prime, message, privateKey):
+    # Follows the encryption as described in the report. The value 'y' is randomly
+    # generated as 1 <= y < p.
+    # The encrypted variables c1 and c2 are added to a list which at the end is returned.
     q = prime - 1
-    generator = 150 
+    generator = 7 
 
     x = privateKey
     h = fastModularExponentiation(generator, privateKey, prime)
@@ -97,6 +111,9 @@ def encrypt(prime, message, privateKey):
 ################
 
 def decryption(prime, privateKey, encryptedList):
+    # Follows the decryption algorithm as described in the report. It needs to use 
+    # both c1 and c2 for the decryption. At the end, padding is added to the 
+    # decrypted value.
     q = prime - 1
     c1 = encryptedList[0]
     c2 = encryptedList[1]
@@ -108,32 +125,42 @@ def decryption(prime, privateKey, encryptedList):
     return addPadding(str(decryptedMessage))
 
 def main():
-    inputFile = ""
-    outputFIle = ""
+    inputFile = "elgamal.py"
     printing = True
+    readFromFile = False
+    stringMessage = "Diskret? Dette er et lite eksempel som beviser at koden fungerer."
 
-    #with open('main.cpp', 'r') as file:
-            #stringMessage = file.read()
+    if readFromFile:
+        with open(inputFile, 'r') as file:
+                stringMessage = file.read()
 
-    stringMessage = "Diskret?"
-
-    prime = 58021664585639791181184025950440248398226136069516938232493687505822471836536824298822733710342250697739996825938232641940670857624514103125986134050997697160127301547995788468137887651823707102007839
+    prime = 579503
+    # Creates some blocks out of the input message.
     blocks = constructBlocks(stringMessage, prime)
 
     encryptedList = []
     privateKeys = []
+
+    # For every block, a new private key is generated and stored in a list of private keys.
+    # This list will become useful under decryption. The blocks are encrypted and stored in
+    # a list of encrypted blocks.
     for i in blocks:
         currentPrivateKey = random.randint(1, (prime - 1))
         privateKeys.append(currentPrivateKey)
         encryptedList.append(encrypt(prime, i, currentPrivateKey))
 
+    # For each block in the encrypted list, it is decrypted using the private keys from
+    # the private keys list and the encrypted blocks from the encrypted blocks list.
+    # When decryption is done, it is appended to a decrypted block list.
     decryptedList = []
     for i, j in enumerate(encryptedList, 0):
         decrypted = decryption(prime, privateKeys[i], j)
         decryptedList.append(decrypted)
 
+    # The decrypted blocks are converted into characters.
     decryptedMessage = deconstructBlocks(decryptedList)
-
+    
+    # Just some printing, so debugging is easier.
     if stringMessage == decryptedMessage:
         print("Success!")
     else:
