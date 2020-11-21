@@ -43,7 +43,7 @@ def constructBlocks(message, prime):
         sys.exit("Your Primenumber is less than the minimum (131).")
         
     # Initializes an empty list. It loops through the message and coverts the character to 
-    # a ASCII value and adds padding. If concatenates values together until the value is larger
+    # a ASCII value and adds padding. It concatenates values together until the value is larger
     # than the prime number. Then it settles for the previous value, and appends it to the list.
     # After the program have iterated through every value of the message, it returns the list.
     retList = []
@@ -127,14 +127,14 @@ def decryption(prime, privateKey, encryptedList):
 def main():
     inputFile = "elgamal.py"
     printing = True
-    readFromFile = False
+    readFromFile = True
     stringMessage = "Diskret? Dette er et lite eksempel som beviser at koden fungerer."
 
     if readFromFile:
         with open(inputFile, 'r') as file:
                 stringMessage = file.read()
 
-    prime = 579503
+    prime = 58021664585639791181184025950440248398226136069516938232493687505822471836536824298822733710342250697739996825938232641940670857624514103125986134050997697160127301547995788468137887651823707102007839
     # Creates some blocks out of the input message.
     blocks = constructBlocks(stringMessage, prime)
 
